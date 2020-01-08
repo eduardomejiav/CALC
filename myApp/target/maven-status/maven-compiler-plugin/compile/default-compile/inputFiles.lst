@@ -1,2 +1,7 @@
-/opt/myApp/src/main/java/hello/MainApplicationClass.java
-/opt/myApp/src/main/java/hello/HelloController.java
+/Users/eduardo/dev/CALC/myApp/src/main/java/hello/business/CurrencyService.java
+/Users/eduardo/dev/CALC/myApp/src/main/java/hello/dao/repository/ExchangeRateRepository.java
+/Users/eduardo/dev/CALC/myApp/src/main/java/hello/dao/entity/ExchangeRate.java
+/Users/eduardo/dev/CALC/myApp/src/main/java/hello/dto/CurrencyExchangeResponse.java
+/Users/eduardo/dev/CALC/myApp/src/main/java/hello/dto/CurrencyExchangeRequest.java
+/Users/eduardo/dev/CALC/myApp/src/main/java/hello/controller/HelloController.java
+/Users/eduardo/dev/CALC/myApp/src/main/java/hello/MainApplicationClass.java
