@@ -16,7 +16,10 @@ public class CurrencyService {
 
     public CurrencyExchangeResponse convert(CurrencyExchangeRequest request) {
 
-        ExchangeRate exchangeRate = exchangeRateRepository.findByCurrencyFromAndCurrencyTo(request.getCurrencyFrom(), request.getCurrencyTo());
+        ExchangeRate exchangeRate = exchangeRateRepository.findByCurrencyFromIgnoreCaseAndCurrencyToIgnoreCase(request.getCurrencyFrom(), request.getCurrencyTo());
+        if(exchangeRate == null){
+            exchangeRate = exchangeRateRepository.findByCurrencyFromIgnoreCaseAndCurrencyToIgnoreCase(request.getCurrencyTo(), request.getCurrencyFrom());
+        }
         if(exchangeRate == null){
             return null;
         }

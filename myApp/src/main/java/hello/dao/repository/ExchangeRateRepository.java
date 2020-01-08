@@ -7,5 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ExchangeRateRepository extends JpaRepository<ExchangeRate, Long> {
 
-    ExchangeRate findByCurrencyFromAndCurrencyTo(String currencyFrom, String currencyTo);
+    // ExchangeRate findByCurrencyFromAndCurrencyTo(String currencyFrom, String currencyTo);
+    ExchangeRate findByCurrencyFromIgnoreCaseAndCurrencyToIgnoreCase (String currencyFrom, String currencyTo);
 }
