@@ -11,15 +11,12 @@ import java.util.Optional;
 @Repository
 public interface ExchangeRateRepository extends JpaRepository<ExchangeRate, Long> {
 
-    // ExchangeRate findByCurrencyFromAndCurrencyTo(String currencyFrom, String currencyTo);
-    ExchangeRate findByCurrencyFromIgnoreCaseAndCurrencyToIgnoreCase (String currencyFrom, String currencyTo);
-
     @Query(value = "SELECT u FROM ExchangeRate u " +
             " WHERE " +
-            " (LOWER(u.currencyFrom) LIKE LOWER(concat('%', concat(:currencyFrom, '%'))) " +
-            "    AND LOWER(u.currencyTo) LIKE LOWER(concat('%', concat(:currencyTo, '%'))) ) OR " +
-            " (LOWER(u.currencyFrom) LIKE LOWER(concat('%', concat(:currencyTo, '%'))) " +
-            "    AND LOWER(u.currencyTo) LIKE LOWER(concat('%', concat(:currencyFrom, '%'))) )")
+            " (LOWER(u.currencyFrom) LIKE LOWER(:currencyFrom) " +
+            "    AND LOWER(u.currencyTo) LIKE LOWER(:currencyTo) ) OR " +
+            " (LOWER(u.currencyFrom) LIKE LOWER(:currencyTo) " +
+            "    AND LOWER(u.currencyTo) LIKE LOWER(:currencyFrom) )")
     Optional<ExchangeRate> findCurrencyExchangeRate(
             @Param("currencyFrom") String currencyFrom,
             @Param("currencyTo") String currencyTo);
