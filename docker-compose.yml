@@ -1,0 +1,13 @@
+version: '3.4'
+services:
+    myapplication:
+        container_name: myapplication
+        networks:
+        - netdb
+        build:
+          context: $PWD/myApp
+        restart: always
+        ports:
+        - "9090:9090"
+networks:
+    netdb:

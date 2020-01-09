@@ -5,4 +5,3 @@ ENV JAVA_OPTS=""
 ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-Dspring.profiles.active=container","-jar","/app.jar"]
 RUN apk --no-cache add curl
 CMD ["/bin/sh"]
-EXPOSE 8080 8080
