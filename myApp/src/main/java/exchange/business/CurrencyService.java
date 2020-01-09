@@ -7,9 +7,13 @@ import exchange.dto.CurrencyExchangeRequest;
 import exchange.dto.CurrencyExchangeResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import rx.Completable;
+import rx.Single;
 
+import javax.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Optional;
 
 @Service
 
@@ -20,68 +24,95 @@ public class CurrencyService {
     @Autowired
     private ExchangeRateRepository exchangeRateRepository;
 
-    public CurrencyExchangeResponse convert(CurrencyExchangeRequest request) {
+    //rx
+    public Single<CurrencyExchangeResponse> convert(CurrencyExchangeRequest request) {
 
-        ExchangeRate exchangeRate = getExchangeRate(request.getCurrencyFrom(), request.getCurrencyTo());
+        return Single.create(singleSubscriber -> {
 
-        if(exchangeRate == null){
-            return null;
+            //if(request.getAmount()<0) singleSubscriber.onError();
+
+            Optional<ExchangeRate> optionalRate = getCurrencyExchangeRate(request.getCurrencyFrom(), request.getCurrencyTo());
+
+            if (!optionalRate.isPresent()){
+
+                singleSubscriber.onError(new EntityNotFoundException());
+            }
+            else {
+
+                CurrencyExchangeResponse response = toResponse(optionalRate.get(), request);
+
+                singleSubscriber.onSuccess(response);
+            }
+        });
+    }
+
+    public Completable saveCurrencyRate(CurrencyExchangeRateRequest request) {
+
+        return Completable.create(completableSubscriber -> {
+
+            Optional<ExchangeRate> optionalRate = getCurrencyExchangeRate(request.getCurrencyFrom(), request.getCurrencyTo());
+
+            ExchangeRate exchangeRate;
+
+            if (!optionalRate.isPresent()){
+
+                exchangeRate = new ExchangeRate();
+            }
+            else {
+
+                exchangeRate = optionalRate.get();
+            }
+
+            exchangeRate.setCurrencyFrom(request.getCurrencyFrom());
+            exchangeRate.setCurrencyTo(request.getCurrencyTo());
+
+            if(!exchangeRate.getCurrencyFrom().equalsIgnoreCase(exchangeRate.getCurrencyTo())){
+                exchangeRate.setRate(request.getRate());
+            }
+
+            exchangeRateRepository.save(exchangeRate);
+
+            completableSubscriber.onCompleted();
+        });
+
+    }
+
+    private Optional<ExchangeRate> getCurrencyExchangeRate(String currencyFrom, String currencyTo){
+
+        if(currencyFrom.equalsIgnoreCase(currencyTo)){
+
+            ExchangeRate exchangeRate =  new ExchangeRate();
+            exchangeRate.setRate(BigDecimal.ONE.doubleValue());
+            exchangeRate.setCurrencyFrom(currencyFrom);
+            exchangeRate.setCurrencyTo(currencyFrom);
+
+            return Optional.of(exchangeRate);
         }
 
+        else return exchangeRateRepository.findCurrencyExchangeRate(currencyFrom, currencyTo);
+
+    }
+
+    private CurrencyExchangeResponse toResponse(ExchangeRate exchangeRate, CurrencyExchangeRequest request){
+
+        Double rate = exchangeRate.getRate();
+
+        if(!exchangeRate.getCurrencyFrom().equalsIgnoreCase(request.getCurrencyFrom())){
+            rate = 1/exchangeRate.getRate();
+        }
+
+        BigDecimal rateFixed = new BigDecimal(rate);
+        BigDecimal amountRatedFixed = new BigDecimal(rate * request.getAmount());
+
         CurrencyExchangeResponse response = new CurrencyExchangeResponse();
+
         response.setCurrencyFrom(request.getCurrencyFrom());
         response.setCurrencyTo(request.getCurrencyTo());
         response.setAmount (request.getAmount());
 
-        BigDecimal rate = new BigDecimal(exchangeRate.getRate());
-        BigDecimal amountRated = new BigDecimal(exchangeRate.getRate() * request.getAmount());
-
-        response.setRate(rate.setScale(SCALE_DECIMALS, RoundingMode.HALF_EVEN).doubleValue());
-        response.setAmountRated(amountRated.setScale(SCALE_DECIMALS, RoundingMode.HALF_EVEN).doubleValue());
-
+        response.setRate(rateFixed.setScale(SCALE_DECIMALS, RoundingMode.HALF_EVEN).doubleValue());
+        response.setAmountRated(amountRatedFixed.setScale(SCALE_DECIMALS, RoundingMode.HALF_EVEN).doubleValue());
         return response;
     }
 
-    public String saveCurrencyRate(CurrencyExchangeRateRequest request) {
-
-        ExchangeRate exchangeRate = getExchangeRate(request.getCurrencyFrom(), request.getCurrencyTo());
-
-        String response;
-
-        if (exchangeRate == null){
-
-            exchangeRate = new ExchangeRate();
-            response = "Added";
-        } else {
-
-            response = "Updated";
-        }
-
-        exchangeRate.setCurrencyFrom(request.getCurrencyFrom());
-        exchangeRate.setCurrencyTo(request.getCurrencyTo());
-        exchangeRate.setRate(request.getRate());
-
-        exchangeRateRepository.save(exchangeRate);
-        return response;
-    }
-
-    private ExchangeRate getExchangeRate(String currencyFrom, String currencyTo){
-
-        boolean divide = false;
-
-        ExchangeRate exchangeRate = exchangeRateRepository.findByCurrencyFromIgnoreCaseAndCurrencyToIgnoreCase(currencyFrom, currencyTo);
-
-        if(exchangeRate == null){
-            exchangeRate = exchangeRateRepository.findByCurrencyFromIgnoreCaseAndCurrencyToIgnoreCase(currencyTo, currencyFrom);
-            divide = true;
-        }
-
-        if(exchangeRate != null){
-            if(divide){
-                exchangeRate.setRate(1/exchangeRate.getRate());
-            }
-        }
-
-        return exchangeRate;
-    }
 }
