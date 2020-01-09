@@ -1,4 +1,4 @@
-package hello.dto;
+package exchange.dto;
 
 public class CurrencyExchangeResponse extends CurrencyExchangeRequest {
     private Double amountRated;

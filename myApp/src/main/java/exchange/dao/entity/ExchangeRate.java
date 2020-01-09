@@ -1,11 +1,9 @@
-package hello.dao.entity;
+package exchange.dao.entity;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "exchange")
-
-
 public class ExchangeRate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

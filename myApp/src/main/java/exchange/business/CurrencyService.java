@@ -1,9 +1,10 @@
-package hello.business;
+package exchange.business;
 
-import hello.dao.entity.ExchangeRate;
-import hello.dao.repository.ExchangeRateRepository;
-import hello.dto.CurrencyExchangeRequest;
-import hello.dto.CurrencyExchangeResponse;
+import exchange.dao.entity.ExchangeRate;
+import exchange.dao.repository.ExchangeRateRepository;
+import exchange.dto.CurrencyExchangeRateRequest;
+import exchange.dto.CurrencyExchangeRequest;
+import exchange.dto.CurrencyExchangeResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +39,29 @@ public class CurrencyService {
         response.setRate(rate.setScale(SCALE_DECIMALS, RoundingMode.HALF_EVEN).doubleValue());
         response.setAmountRated(amountRated.setScale(SCALE_DECIMALS, RoundingMode.HALF_EVEN).doubleValue());
 
+        return response;
+    }
+
+    public String saveCurrencyRate(CurrencyExchangeRateRequest request) {
+
+        ExchangeRate exchangeRate = getExchangeRate(request.getCurrencyFrom(), request.getCurrencyTo());
+
+        String response;
+
+        if (exchangeRate == null){
+
+            exchangeRate = new ExchangeRate();
+            response = "Added";
+        } else {
+
+            response = "Updated";
+        }
+
+        exchangeRate.setCurrencyFrom(request.getCurrencyFrom());
+        exchangeRate.setCurrencyTo(request.getCurrencyTo());
+        exchangeRate.setRate(request.getRate());
+
+        exchangeRateRepository.save(exchangeRate);
         return response;
     }
 
