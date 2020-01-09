@@ -1,12 +1,10 @@
-package hello.dto;
+package exchange.dto;
 
-public class CurrencyExchangeRequest {
+public class CurrencyExchangeRateRequest {
+
     private String currencyFrom;
     private String currencyTo;
-    private Double amount;
-
-    public CurrencyExchangeRequest() {
-    }
+    private Double rate;
 
     public String getCurrencyFrom() {
         return currencyFrom;
@@ -24,11 +22,11 @@ public class CurrencyExchangeRequest {
         this.currencyTo = currencyTo;
     }
 
-    public Double getAmount() {
-        return amount;
+    public Double getRate() {
+        return rate;
     }
 
-    public void setAmount(Double amount) {
-        this.amount = amount;
+    public void setRate(Double rate) {
+        this.rate = rate;
     }
 }

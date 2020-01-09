@@ -1,6 +1,6 @@
-package hello.dao.repository;
+package exchange.dao.repository;
 
-import hello.dao.entity.ExchangeRate;
+import exchange.dao.entity.ExchangeRate;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
